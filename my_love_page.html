@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Love</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{ background:#020617; color:#fff; font-family:'Poppins',sans-serif; overflow:hidden; }
+
+/* SCENES */
+.scene{ height:100vh; display:none; justify-content:center; align-items:center; flex-direction:column; text-align:center; }
+.scene.active{display:flex;}
+
+/* COUNTDOWN */
+#count{ font-size:6rem; color:gold; }
+
+/* CAKE */
+#cake{ font-size:6rem; cursor:pointer; }
+
+/* LOVE TEXT */
+#love{ font-size:3rem; font-family:'Playfair Display',serif; color:#ff5fa2; }
+
+/* ROSES */
+.rose{ position:fixed; top:-40px; font-size:20px; animation:fall linear infinite; }
+@keyframes fall{ to{transform:translateY(110vh);} }
+
+/* SNOW */
+.snow{ position:fixed; top:-20px; font-size:18px; animation:snowfall linear infinite; pointer-events:none; }
+@keyframes snowfall{ to{transform:translateY(110vh);} }
+
+/* BIG HEART */
+.big-heart{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0); font-size:180px; color:#ff2d75; animation:heartPop 3s ease-in-out forwards; z-index:9999; }
+@keyframes heartPop{ 0%{transform:translate(-50%,-50%) scale(0);} 30%{transform:translate(-50%,-50%) scale(1.2);} 60%{transform:translate(-50%,-50%) scale(1);} 100%{opacity:0;} }
+
+/* GRID */
+#cards{ padding:60px 20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:25px; width:100%; max-width:1200px; }
+.card{ background:linear-gradient(135deg,#020617,#020617,#0f172a); border-radius:16px; padding:30px; cursor:pointer; transition:.3s; color:white; text-align:center; font-weight:bold; }
+.card.clicked{ background:#ff5fa2; color:white; }
+
+/* POPUP */
+.overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; }
+.overlay.active{display:flex;}
+.popup{ background:linear-gradient(135deg,#0f172a,#020617); border-radius:22px; padding:40px; max-width:520px; text-align:center; }
+.popup .heart{ font-size:3rem; color:red; }
+.popup .letter{ font-size:2rem; margin:10px 0; color:white; font-weight:bold; }
+.popup p{ font-size:.95rem; line-height:1.6; color:white; }
+.popup button{ margin-top:25px; padding:10px 30px; border:none; border-radius:25px; background:#9ca3af; color:#000; cursor:pointer; }
+
+/* FINAL */
+.final{ display:none; height:100vh; justify-content:center; align-items:center; text-align:center; padding:30px; position:relative;}
+.final.active{display:flex;}
+.final h1{ font-family:'Playfair Display',serif; font-size:2.8rem; }
+.final p{ margin-top:20px; font-size:1.2rem; line-height:1.8; }
+.final button{ margin-top:30px; padding:12px 40px; border:none; border-radius:25px; background:#ff5fa2; color:white; cursor:pointer; font-size:1rem; }
+
+/* PAGE 2 Animations */
+#fireworkCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
+#mahalKita{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem;color:red;font-weight:bold;text-align:center;z-index:9999;}
+#nextMahalBtn{position:absolute;top:65%;left:50%;transform:translateX(-50%);padding:12px 30px;background:#ff5fa2;color:white;border:none;border-radius:25px;font-size:1rem;cursor:pointer;z-index:9999;}
+
+/* Final wishes elegant gradient text centered */
+#finalText{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-size:3rem;
+  font-weight:bold;
+  text-align:center;
+  background: linear-gradient(90deg, #FFD700, #C0C0C0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+</style>
+</head>
+<body>
+
+<audio id="tickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-clock-countdown-bleeps-916.mp3" preload="auto"></audio>
+
+<!-- SCENES -->
+<div class="scene active" id="scene1"><div id="count">10</div></div>
+<div class="scene" id="scene2"><div id="cake">🎂</div><p>CLICK THE CAKE MY LOVE</p></div>
+<div class="scene" id="scene3"><div id="love">I LOVE YOU BABY ❤</div></div>
+<div class="scene" id="scene4"><div id="cards"></div></div>
+
+<!-- POPUP -->
+<div class="overlay" id="overlay">
+  <div class="popup">
+    <div class="heart">❤</div>
+    <div class="letter" id="letter"></div>
+    <p id="msg"></p>
+    <button onclick="nextCard()">Next</button>
+  </div>
+</div>
+
+<!-- FINAL PAGE 1 -->
+<div class="final" id="final1">
+  <div>
+    <h1>MY LOVE</h1>
+    <p> My love, may all your dreams come true this year. Never give up. Whatever you want in life, don’t quit—keep trying. Believe in yourself first; you can do it. Always stay happy and safe, my love. Don’t be sad, no matter what happens. I am always here for you, standing by your side. </p>
+    <button onclick="showPage2()">Next Page</button>
+  </div>
+</div>
+
+<!-- FINAL PAGE 2 -->
+<div class="final" id="final2">
+  <canvas id="fireworkCanvas"></canvas>
+  <div id="mahalKita">MAHAL KITA 💕 BABY</div>
+  <button id="nextMahalBtn" onclick="showFinalWishes()">Next</button>
+</div>
+
+<!-- FINAL WISHES PAGE CENTERED -->
+<div class="final" id="final3">
+  <div id="finalText">
+    WISH YOU HAPPY NEW YEAR 2026<br>💓 MY LOVE FOREVER 💓
+  </div>
+</div>
+
+<script>
+// Countdown
+let n=10;
+const tickSound=document.getElementById("tickSound");
+const c=setInterval(()=>{
+  tickSound.currentTime=0; tickSound.play();
+  count.innerText=n--;
+  if(n<0){
+    clearInterval(c);
+    scene1.classList.remove("active");
+    scene2.classList.add("active");
+  }
+},1000);
+
+// Cake click
+cake.onclick=()=>{
+  scene2.classList.remove("active");
+  scene3.classList.add("active");
+  startRoses();
+  startSnow();
+  showBigHeart();
+  setTimeout(()=>{
+    scene3.classList.remove("active");
+    scene4.classList.add("active");
+  },3000);
+};
+
+// Roses
+function startRoses(){
+  setInterval(()=>{
+    const r=document.createElement("div");
+    r.className="rose"; r.innerText="🌹";
+    r.style.left=Math.random()*100+"%";
+    r.style.animationDuration=3+Math.random()*5+"s";
+    document.body.appendChild(r);
+    setTimeout(()=>r.remove(),8000);
+  },300);
+}
+
+// Snow
+function startSnow(){
+  setInterval(()=>{
+    const s=document.createElement("div");
+    s.className="snow"; s.innerText="❄";
+    s.style.left=Math.random()*100+"%";
+    s.style.animationDuration=4+Math.random()*6+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),10000);
+  },200);
+}
+
+// Big heart
+function showBigHeart(){
+  const h=document.createElement("div");
+  h.className="big-heart"; h.innerText="❤";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),3000);
+}
+
+// 26 gifts
+const letters=["A","N","G","E","L","A","M","I","R","A","N","D","A","I","L","O","V","E","Y","O","U","B","A","B","Y","❤"];
+const gifts=[
+"1️⃣ When Love Happened Naturally 💕 Unplanned love, unexpected bond. Right time, right person. That's YOU",
+"2️⃣ 🌟 A rare shooting star just for you.",
+"3️⃣ Falling in Love With You Every Day 💖 I'm In Love With You, And I Love That I'm In Love With You. The Happiness When I Think Of You, The Butterflies When You Text Me, The Excitement I Get When I Know I'll Get To See You, It's Amazing And You're Amazing And I Love You V♡",
+"4️⃣ 🍫 Gourmet chocolate treat from my heart.",
+"5️⃣ 🧸 A soft teddy hug you can feel.",
+"6️⃣ 🎵 Perfect by Ed Sheeran: I found a love for me, Darling Angela just dive right in, follow my lead. Well I found a girl beautiful and sweet I never knew you were the someone waiting for me...",
+"7️⃣ 🍬 Sweet candy dream to make you smile.",
+"8️⃣ 🌹 A crimson rose for my queen.",
+"9️⃣ 💍 Tiny promise ring—forever starts now.",
+"10️⃣ ❤ You are my everything love. Loving you has quietly changed the way I understand my heart...",
+"11️⃣ 💌 Heartfelt letter sealed with love.",
+"12️⃣ 🎨 Custom painting of our bond.",
+"13️⃣ 📸 Memory photo frozen in time.",
+"14️⃣ 🍓 Strawberry delight for sweetness.",
+"15️⃣ 🎀 Pretty ribbon tying our hearts.",
+"16️⃣ 👑 Flower crown befitting your grace.",
+"17️⃣ 🎈 Balloon full of joy.",
+"18️⃣ ✨ Sprinkle of magic for your days.",
+"19️⃣ 🌙 Moonlight kiss under stars.",
+"20️⃣ 🍰 Mini cake to taste our happiness.",
+"21️⃣ 💖 Shiny heart charm close to you.",
+"22️⃣ 🦢 Two swans in love - SURYA ❤ ANGELA MIRANDA",
+"23️⃣ 🌸 Sakura bloom blessing your path.",
+"24️⃣ 💕 Please take good care of yourself, my love. Self love, self respect, and self care are the best things that you can give yourself without taking anything away from anyone. Build your own home inside you first.",
+"25️⃣ 🙏 Thank You for Being There, Before this year ends, I want to tell you something from my heart. Thank you for loving me Thank you for being kind to me when I needed it most. Thank you for caring about me for asking how I am, and for always listening. Thank you for standing by me You believed in me when I doubted myself You gave me strength when you felt weak. You helped me keep going when I wanted to stop.",
+"26️⃣ 🌟 A New Chapter Starts Now. As 2025 Comes To An End. Remember This: You Made It. Through Pain, Losses, Lessons, And Silent Battles, You Stayed Strong. Life Is Still Beautiful. Step Into 2026 With Hope. Happy New Year."
+];
+let current=0;
+gifts.forEach((_,i)=>{
+  cards.innerHTML+=`<div class="card" id="card${i}" onclick="openCard(${i})">GIFT ${i+1}</div>`;
+});
+function openCard(i){
+  document.getElementById("card"+i).classList.add("clicked");
+  current=i;
+  letter.innerText=letters[i];
+  msg.innerText=gifts[i];
+  overlay.classList.add("active");
+}
+function nextCard(){
+  overlay.classList.remove("active");
+  if(current===25){
+    scene4.classList.remove("active");
+    final1.classList.add("active");
+  }
+}
+
+// Show Page 2
+function showPage2(){
+  final1.classList.remove("active");
+  final2.classList.add("active");
+  startFireworks();
+}
+
+// Fireworks
+function startFireworks(){
+  const canvas=document.getElementById("fireworkCanvas");
+  const ctx=canvas.getContext("2d");
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+
+  class Particle{
+      constructor(x,y,color){
+          this.x=x; this.y=y; this.color=color;
+          this.vx=(Math.random()-0.5)*5;
+          this.vy=(Math.random()-0.5)*5;
+          this.alpha=1;
+      }
+      update(){this.x+=this.vx; this.y+=this.vy; this.alpha-=0.02;}
+      draw(){ctx.fillStyle=`rgba(${this.color},${this.alpha})`;ctx.beginPath();ctx.arc(this.x,this.y,2,0,Math.PI*2);ctx.fill();}
+  }
+
+  class Firework{
+      constructor(){this.particles=[]; const x=Math.random()*canvas.width; const y=Math.random()*canvas.height/2;
+        for(let i=0;i<50;i++){this.particles.push(new Particle(x,y,`${255},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*100)}`));}}
+      draw(){this.particles.forEach(p=>{p.draw(); p.update();});}
+  }
+
+  const fireworks=[];
+  for(let i=0;i<20;i++){fireworks.push(new Firework());}
+
+  const fwInterval=setInterval(()=>{
+      ctx.fillStyle='rgba(0,0,0,0.1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      fireworks.forEach(fw=>fw.draw());
+  },30);
+
+  setTimeout(()=>{clearInterval(fwInterval);},12000); // 12s fireworks
+}
+
+// Show final wishes page
+function showFinalWishes(){
+  final2.style.display="none";
+  final3.style.display="flex";
+}
+</script>
+</body>
+</html>
